@@ -1,0 +1,1 @@
+"""EcoPredict FastAPI Application Package."""

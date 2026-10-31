@@ -1,0 +1,103 @@
+# ==========================================
+# EcoPredict — Git Ignore Configuration
+# ==========================================
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Environment and Secrets (Never commit credentials)
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Preserve .env.example
+!.env.example
+
+# Node.js / Frontend
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+dist-ssr/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.vite/
+frontend/.vite/
+
+# Python & Backend
+__pycache__/
+*/__pycache__/
+*/*/__pycache__/
+*/*/*/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.ruff_cache/
+.mypy_cache/
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+backend/venv/
+backend/.venv/
+ml/venv/
+ml/.venv/
+
+# Machine Learning Data & Artifacts
+# Large datasets and model weights should not be tracked directly in Git
+ml/data/raw/*
+!ml/data/raw/.gitkeep
+ml/data/processed/*
+!ml/data/processed/.gitkeep
+ml/models/*
+!ml/models/.gitkeep
+ml/reports/*
+!ml/reports/.gitkeep
+
+# Serialized Model Weights & Big Data
+*.pkl
+*.joblib
+*.h5
+*.onnx
+*.pt
+*.pth
+*.parquet
+*.feather
+*.sqlite3
+
+# Jupyter Notebook Checkpoints
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# IDE and Editor Directories
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
