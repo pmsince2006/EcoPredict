@@ -73,12 +73,15 @@ ml/.venv/
 # Large datasets and model weights should not be tracked directly in Git
 ml/data/raw/*
 !ml/data/raw/.gitkeep
+!ml/data/raw/sample_delhi_cpcb_fixture.csv
 ml/data/processed/*
 !ml/data/processed/.gitkeep
 ml/models/*
 !ml/models/.gitkeep
+!ml/models/*.json
 ml/reports/*
 !ml/reports/.gitkeep
+!ml/reports/*.json
 
 # Serialized Model Weights & Big Data
 *.pkl

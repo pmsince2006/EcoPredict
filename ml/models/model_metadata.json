@@ -1,0 +1,63 @@
+{
+  "model_type": "RandomForestRegressor",
+  "model_file": "baseline_random_forest.pkl",
+  "target_variable": "pm25",
+  "target_unit": "\u00b5g/m\u00b3",
+  "horizon_hours": 1,
+  "feature_count": 24,
+  "features": [
+    "pm25_current",
+    "pm25_lag_1h",
+    "pm25_lag_2h",
+    "pm25_lag_3h",
+    "pm25_lag_6h",
+    "pm25_lag_12h",
+    "pm25_lag_24h",
+    "pm25_diff_1h",
+    "pm25_rolling_mean_3h",
+    "pm25_rolling_mean_6h",
+    "pm25_rolling_mean_24h",
+    "pm10_current",
+    "no2_current",
+    "so2_current",
+    "co_current",
+    "o3_current",
+    "temperature_current",
+    "relative_humidity_current",
+    "wind_speed_current",
+    "hour_sin",
+    "hour_cos",
+    "dayofweek_sin",
+    "dayofweek_cos",
+    "is_weekend"
+  ],
+  "random_state": 42,
+  "evaluation_metrics": {
+    "baseline": {
+      "mae": 8.447,
+      "rmse": 10.653,
+      "r2": 0.8751,
+      "mape_pct": 4.65,
+      "n_samples": 15,
+      "unit": "\u00b5g/m\u00b3"
+    },
+    "model": {
+      "mae": 7.943,
+      "rmse": 8.494,
+      "r2": 0.9206,
+      "mape_pct": 4.68,
+      "n_samples": 15,
+      "unit": "\u00b5g/m\u00b3"
+    },
+    "mae_reduction_pct": 5.97,
+    "rmse_reduction_pct": 20.27,
+    "beats_baseline": true,
+    "conclusion": "Model beats baseline with 5.97% MAE reduction.",
+    "target": "pm25",
+    "horizon_hours": 1,
+    "evaluation_period": {
+      "test_start_index": 83,
+      "test_samples": 15
+    }
+  }
+}
