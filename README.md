@@ -1,6 +1,6 @@
 # EcoPredict — AI-Powered Air Quality Intelligence & Forecasting Platform
 
-[![Checkpoint](https://img.shields.io/badge/Hackathon-Checkpoint%202%3A%20Data%20%26%20Baseline%20ML-success.svg)](#current-project-status-and-roadmap)
+[![Checkpoint](https://img.shields.io/badge/Hackathon-Checkpoint%203%3A%20Safe%20Inference%20%26%20Integration-success.svg)](#current-project-status-and-roadmap)
 [![Frontend](https://img.shields.io/badge/Frontend-React%2018%20%2B%20TypeScript%20%2B%20Vite-61dafb.svg)](#proposed-technology-stack)
 [![Backend](https://img.shields.io/badge/Backend-FastAPI%20%2B%20Python%203.12-009688.svg)](#proposed-technology-stack)
 [![ML-Pipeline](https://img.shields.io/badge/ML--Pipeline-scikit--learn%20%2B%20pandas-f7931e.svg)](#machine-learning-workflow)
@@ -15,13 +15,13 @@
 **EcoPredict** is an end-to-end environmental intelligence application designed to address urban air pollution crises in severely affected regions (such as the National Capital Region of Delhi and major metropolitan basins). The platform aggregates multi-sensor ambient particulate telemetry ($PM_{2.5}, PM_{10}, NO_2, SO_2, CO, O_3$), applies time-series and meteorological feature engineering, forecasts forward-looking AQI trends, and delivers proactive health recommendations and clean routing guidance.
 
 > [!IMPORTANT]
-> **Hackathon Checkpoint 2 Update**: This repository contains **Checkpoint 2: Dataset Validation and Baseline AQI Forecasting**. We have implemented and tested a complete, reproducible machine-learning pipeline:
-> - **Data Provenance & Quality**: Documented candidate sources (CPCB, OpenAQ v3, data.gov.in) and quality findings in [`docs/dataset.md`](docs/dataset.md).
-> - **Modeling & AQI Standard**: Formulated continuous $PM_{2.5}$ forecasting vs CPCB sub-index formulas in [`docs/modeling.md`](docs/modeling.md).
-> - **Data Pipeline**: Implemented schema validation, timestamp parsing, deduplication, and anomaly sanitization in [`ml/src/data/loader.py`](ml/src/data/loader.py).
-> - **Feature Engineering**: Implemented autoregressive lags, trailing rolling statistics, and cyclical time encodings with strict zero-leakage guarantees in [`ml/src/features/engineer.py`](ml/src/features/engineer.py).
-> - **Baseline Modeling**: Implemented chronological train/val/test splitting, a persistence baseline, and a Random Forest regressor with side-by-side evaluation in [`ml/src/training/train.py`](ml/src/training/train.py) and [`ml/src/evaluation/evaluate.py`](ml/src/evaluation/evaluate.py).
-> - **Reproducible Tests**: Added comprehensive test coverage in [`tests/ml/`](tests/ml/) using a validated software test fixture (`ml/data/raw/sample_delhi_cpcb_fixture.csv`).
+> **Hackathon Checkpoint 3 Update**: This repository contains **Checkpoint 3: Safe Backend Inference and Frontend Integration**.
+> - **Honest Data Status Taxonomy**: Established rigorous data status classification across backend routes and frontend UI (`real_observation`, `real_data_forecast`, `demo_preview`, `unavailable`).
+> - **Academic Integrity & Transparency**: The current Random Forest model was trained on a synthetic test fixture (`sample_delhi_cpcb_fixture.csv`), NOT real CPCB observations. The UI, API, and metadata explicitly report `is_demo_model: true`, `real_data_validated: false`, and prominent demo disclaimers.
+> - **Safe Backend Inference (`ModelService`)**: Singleton model manager anchored to repository root with input bounds validation, confidence interval generation, path-traversal prevention, and CPCB piecewise linear AQI sub-index mapping.
+> - **Robust API Contract (`docs/api.md`)**: Full specification for `/api/health`, `/api/aqi/summary`, `/api/aqi/stations`, and `/api/aqi/forecast`.
+> - **Connected React Dashboard**: Integrated `frontend/src/services/api.ts` with connection status pill in Header, live station map updates, and forecast chart connected to backend ML inference with graceful mock fallback.
+> - **Full Test Coverage**: 34 unit & integration tests passing across `tests/ml/` and `tests/backend/`.
 
 ---
 
@@ -79,11 +79,21 @@ EcoPredict bridges the gap between raw environmental sensors and civic decision-
 - [x] Implemented model and metadata serialization (`ml/models/`).
 - [x] Provided validated software test fixture (`ml/data/raw/sample_delhi_cpcb_fixture.csv`) and comprehensive unit tests in [`tests/ml/`](tests/ml/).
 
-### Checkpoint 3: Live Integration & Route Optimization (Upcoming)
-- [ ] Connect FastAPI prediction endpoints to loaded model artifacts.
-- [ ] Ingest production multi-month CPCB / OpenAQ historical datasets.
-- [ ] Graph-based clean route optimization across transit corridors.
-- [ ] Automated model retraining and evaluation dashboard integration.
+### Checkpoint 3: Safe Backend Inference & Integration (Completed)
+- [x] Defined complete API contract and honest data status taxonomy in [`docs/api.md`](docs/api.md).
+- [x] Implemented safe singleton `ModelService` (`backend/app/services/model_service.py`) with root anchoring, bounds validation, and path-traversal prevention.
+- [x] Implemented piecewise linear CPCB NAQI sub-index calculation from predicted continuous $PM_{2.5}$ (`backend/app/services/aqi_service.py`).
+- [x] Implemented `/api/health`, `/api/aqi/summary`, `/api/aqi/stations`, and `/api/aqi/forecast` routes with `allow_demo` safeguards.
+- [x] Built frontend API service client (`frontend/src/services/api.ts`) with dynamic fallbacks and type definitions.
+- [x] Connected React dashboard: connection pill in Header, station coordinates on Leaflet map, dynamic multi-horizon forecast curves with error bars.
+- [x] Enforced transparent distinction: explicit demo badges, synthetic fixture provenance metadata, and zero unverified accuracy claims.
+- [x] Added 18 unit & route tests in `tests/backend/` and verified full 34-test suite passing.
+
+### Checkpoint 4: Real-World Ingestion & Clean Route Optimization (Upcoming)
+- [ ] Ingest production multi-month CPCB / OpenAQ historical datasets into real training pipeline.
+- [ ] Transition data status from `demo_preview` to `real_data_forecast` upon CPCB validation.
+- [ ] Graph-based clean route optimization (OSRM / Dijkstra) comparing particulate exposure across corridors.
+- [ ] Continuous telemetry ingestion and automated model drift detection.
 
 ---
 
@@ -127,6 +137,7 @@ EcoPredict/
 ├── .env.example                   # Environment variable template with safe placeholders
 ├── LICENSE                        # MIT License
 ├── docs/
+│   ├── api.md                     # Comprehensive REST API contract, schemas, and security
 │   ├── architecture.md            # Detailed system architecture and interface specification
 │   ├── ui-design.md               # UI design system, color tokens, and layout guidelines
 │   ├── dataset.md                 # Dataset provenance, CPCB/OpenAQ access, quality findings
@@ -136,18 +147,18 @@ EcoPredict/
 │   │   ├── components/            # Reusable UI primitives (Header, Badges)
 │   │   ├── features/dashboard/    # Dashboard cards, Leaflet map, forecast & trend charts
 │   │   ├── layouts/               # Page wrapper layouts
-│   │   ├── pages/                 # Top-level routed pages
-│   │   ├── services/              # API clients and mock telemetry fixtures
+│   │   ├── pages/                 # Top-level routed pages (DashboardPage)
+│   │   ├── services/              # API client (api.ts) and mock telemetry fixtures (mockData.ts)
 │   │   ├── types/                 # Shared TypeScript interfaces (AQI, Stations, Forecasts)
 │   │   └── utils/                 # Severity calculators and formatting utilities
 │   ├── package.json               # Frontend dependencies and run scripts
 │   └── vite.config.ts             # Vite build and dev-server configuration
 ├── backend/                       # FastAPI REST microservice
 │   ├── app/
-│   │   ├── api/routes/            # Route modules (health, aqi endpoints)
-│   │   ├── core/                  # Application configuration and settings
-│   │   ├── schemas/               # Pydantic data contracts and models
-│   │   ├── services/              # Business logic and mock service layers
+│   │   ├── api/routes/            # Route modules (health.py, aqi.py)
+│   │   ├── core/                  # Application configuration and settings (config.py)
+│   │   ├── schemas/               # Pydantic data contracts (AQISummary, ForecastResponse)
+│   │   ├── services/              # Business logic (aqi_service.py, model_service.py)
 │   │   └── main.py                # FastAPI application initialization and CORS setup
 │   └── requirements.txt           # Python backend dependencies
 ├── ml/                            # Machine Learning & Data Science pipeline
@@ -163,8 +174,8 @@ EcoPredict/
 │   ├── models/                    # Serialized model weights & model_metadata.json
 │   ├── reports/                   # Model performance evaluation artifacts
 │   └── requirements.txt           # Python data science dependencies
-└── tests/                         # Unit and smoke test suites
-    ├── backend/                   # FastAPI endpoint and service tests
+└── tests/                         # Unit and integration test suites
+    ├── backend/                   # FastAPI route and ModelService tests (test_aqi_routes.py, test_model_service.py)
     └── ml/                        # ML pipeline tests (loader, feature engineer, trainer)
 ```
 
@@ -292,13 +303,17 @@ cp .env.example .env
 
 ## 12. Testing Instructions
 
+### Run All Test Suites (ML & Backend)
+Run pytest from the repository root across all 34 tests:
+```bash
+pytest tests/ -v
+```
+
 ### Run ML Test Suite
-Run pytest from the repository root:
 ```bash
 pytest tests/ml/ -v
 ```
-
-The test suite validates:
+The ML test suite validates:
 1. `test_load_valid_csv`: Valid schema and datetime parsing.
 2. `test_missing_file_raises_not_found`: `FileNotFoundError` handling.
 3. `test_missing_required_columns`: `DataValidationError` when columns are absent.
@@ -312,16 +327,26 @@ The test suite validates:
 11. `test_evaluator_known_metrics`: Analytical metric calculation verification (MAE, RMSE).
 12. `test_trainer_end_to_end_on_fixture`: Full end-to-end pipeline execution on software test fixture.
 
-### Run Backend Smoke Tests
+### Run Backend Unit & Integration Tests
 ```bash
-python -c "
-import tests.backend.test_health as tb
-tb.test_settings_initialization()
-tb.test_aqi_service_severity_categories()
-tb.test_aqi_demo_summary()
-print('✓ Backend tests passed!')
-"
+pytest tests/backend/ -v
 ```
+The backend test suite validates:
+1. `test_model_service_singleton`: Verifies thread-safe singleton pattern and model caching.
+2. `test_model_service_loaded_attributes`: Verifies that current model is explicitly identified as a demo model (`is_demo_model=True`, `real_data_validated=False`).
+3. `test_forecast_generation_structure`: Verifies multi-horizon forecast structure, bounds, and CPCB mapping.
+4. `test_real_data_only_mode_returns_unavailable`: Verifies that `allow_demo=False` returns `data_status="unavailable"` when real model is absent.
+5. `test_invalid_horizon_rejected`: Out-of-bounds horizon bounds check (1 to 72 hours).
+6. `test_cpcb_aqi_sub_index_calculation`: Piecewise linear NAQI sub-index mapping tests across all six Indian categories.
+7. `test_missing_model_directory_handling`: Graceful error recovery when model artifacts directory is missing.
+8. `test_invalid_metadata_handling`: `MetadataValidationError` when metadata JSON lacks required schema keys.
+9. `test_health_endpoint`: Introspects data status, model provenance, and demo disclaimers.
+10. `test_aqi_summary_endpoint`: Summary route returns demo flags and valid pollutant breakdown.
+11. `test_aqi_stations_endpoint`: Station coordinates and current indices verified.
+12. `test_forecast_demo_mode`: Endpoint returns multi-horizon preview with demo disclaimers.
+13. `test_forecast_real_data_only_mode`: Endpoint returns `unavailable` when demo output is disabled.
+14. `test_forecast_horizon_validation`: 422 Unprocessable Entity for invalid horizon parameters.
+15. `test_forecast_fallback_on_unloaded_model`: Graceful fallback if model service fails to load.
 
 ### Run Frontend Build Test
 ```bash
@@ -333,12 +358,12 @@ npm run build
 
 ## 13. Team Contributions
 
-| Team Member | Role Focus | Checkpoint 2 Responsibilities |
+| Team Member | Role Focus | Checkpoint 3 Responsibilities |
 | :--- | :--- | :--- |
-| **Member 1 (Prince)** | **Fullstack Lead & Coordination** | Repository architecture, interface alignment, and pipeline reproducibility. |
-| **Member 2** | **Frontend & UI/UX Developer** | Maintained UI shell integrity, reviewed data contracts for Checkpoint 3 integration. |
-| **Member 3** | **Data Engineer & Pipeline Lead** | Implemented `DataLoader`, investigated CPCB/OpenAQ sources, authored `docs/dataset.md`. |
-| **Member 4** | **Machine Learning Specialist** | Implemented `FeatureEngineer`, `ModelTrainer`, `ModelEvaluator`, authored `docs/modeling.md`. |
+| **Member 1 (Prince)** | **Fullstack Lead & Integration** | Integrated `frontend/src/services/api.ts` with DashboardPage, added connection status badge to Header, wired ForecastChart to backend inference. |
+| **Member 2** | **Frontend UI & Visualizations** | Updated `ForecastChart` and `InteractiveMap` to render backend data status badges, loading skeletons, and demo disclaimers. |
+| **Member 3** | **Data Engineering & Standards** | Implemented CPCB NAQI piecewise linear sub-index conversion (`aqi_service.py`), authored `docs/api.md` contract. |
+| **Member 4** | **Backend ML Infrastructure** | Implemented safe singleton `ModelService` (`model_service.py`), metadata schema validation, path-traversal prevention, and route test suite. |
 
 ---
 

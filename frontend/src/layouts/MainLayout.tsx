@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
 import { Header } from '../components/common/Header';
 import { Shield } from 'lucide-react';
+import { HealthResponse } from '../types/aqi';
 
 interface MainLayoutProps {
-  children: (props: { selectedLocation: string }) => React.ReactNode;
+  children: (props: {
+    selectedLocation: string;
+    onHealthStatusUpdate: (status: HealthResponse) => void;
+  }) => React.ReactNode;
 }
 
 export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const [selectedLocation, setSelectedLocation] = useState<string>('Delhi NCR');
+  const [healthStatus, setHealthStatus] = useState<HealthResponse | null>(null);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
@@ -15,11 +20,12 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       <Header
         selectedLocation={selectedLocation}
         onLocationChange={setSelectedLocation}
+        healthStatus={healthStatus}
       />
 
       {/* Main Content Viewport */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        {children({ selectedLocation })}
+        {children({ selectedLocation, onHealthStatusUpdate: setHealthStatus })}
       </main>
 
       {/* Footer */}
@@ -28,7 +34,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           <div className="flex items-center space-x-2">
             <span className="font-semibold text-slate-300">EcoPredict</span>
             <span>—</span>
-            <span>Air Quality Monitoring & Forecasting Platform (Checkpoint 1 Foundation)</span>
+            <span>Air Quality Monitoring & Forecasting Platform (Checkpoint 3 Safe Inference)</span>
           </div>
 
           <div className="flex items-center space-x-4 text-slate-400">
@@ -42,7 +48,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-2 text-[11px] text-slate-400">
-          Disclaimer: Visualizations, forecasts, and hotspot attributions shown on this dashboard are illustrative mock previews prepared for Checkpoint 1 submission. Live API integrations and trained ML models will be connected in subsequent phases.
+          Disclaimer: Visualizations and model forecasts shown on this dashboard are illustrative demonstration previews. The current Random Forest model is trained on a synthetic test fixture and is explicitly not validated against real atmospheric observations.
         </div>
       </footer>
     </div>

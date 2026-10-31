@@ -4,8 +4,11 @@ import { DashboardPage } from './pages/DashboardPage';
 export function App() {
   return (
     <MainLayout>
-      {({ selectedLocation }) => (
-        <DashboardPage selectedLocation={selectedLocation} />
+      {({ selectedLocation, onHealthStatusUpdate }) => (
+        <DashboardPage
+          selectedLocation={selectedLocation}
+          onHealthStatusUpdate={onHealthStatusUpdate}
+        />
       )}
     </MainLayout>
   );

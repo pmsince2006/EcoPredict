@@ -32,6 +32,12 @@
     "is_weekend"
   ],
   "random_state": 42,
+  "training_data_provenance": "synthetic_fixture",
+  "dataset_source": "sample_delhi_cpcb_fixture.csv",
+  "is_demo_model": true,
+  "real_data_validated": false,
+  "data_status": "demo_preview",
+  "warning": "DEMO MODEL ONLY: Trained on a synthetic test fixture. Not validated against real atmospheric data.",
   "evaluation_metrics": {
     "baseline": {
       "mae": 8.447,

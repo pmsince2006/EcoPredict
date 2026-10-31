@@ -1,5 +1,19 @@
-import React from 'react';
-import { MOCK_CURRENT_SUMMARY } from '../services/mockData';
+import React, { useEffect, useState } from 'react';
+import { MOCK_CURRENT_SUMMARY, MOCK_STATIONS, MOCK_FORECAST_24H } from '../services/mockData';
+import {
+  getAqiSummary,
+  getMonitoringStations,
+  getForecast,
+  getHealthStatus,
+  transformForecastToChartData,
+} from '../services/api';
+import {
+  AQISummary,
+  Station,
+  ForecastDataPoint,
+  ForecastResponse,
+  HealthResponse,
+} from '../types/aqi';
 import { KpiCards } from '../features/dashboard/KpiCards';
 import { InteractiveMap } from '../features/dashboard/InteractiveMap';
 import { RoutePlanner } from '../features/dashboard/RoutePlanner';
@@ -11,14 +25,74 @@ import { SourceBreakdownChart } from '../features/dashboard/SourceBreakdownChart
 
 interface DashboardPageProps {
   selectedLocation: string;
+  onHealthStatusUpdate?: (status: HealthResponse) => void;
 }
 
-export const DashboardPage: React.FC<DashboardPageProps> = ({ selectedLocation }) => {
-  // Update location name for demo summary if location changes
-  const summary = {
+export const DashboardPage: React.FC<DashboardPageProps> = ({
+  selectedLocation,
+  onHealthStatusUpdate,
+}) => {
+  const [summary, setSummary] = useState<AQISummary>({
     ...MOCK_CURRENT_SUMMARY,
     locationName: selectedLocation,
-  };
+  });
+  const [stations, setStations] = useState<Station[]>(MOCK_STATIONS);
+  const [forecastData, setForecastData] = useState<ForecastDataPoint[]>(MOCK_FORECAST_24H);
+  const [forecastMeta, setForecastMeta] = useState<ForecastResponse | null>(null);
+  const [isLoadingForecast, setIsLoadingForecast] = useState<boolean>(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadBackendData() {
+      // 1. Fetch Health
+      try {
+        const health = await getHealthStatus();
+        if (isMounted && onHealthStatusUpdate) {
+          onHealthStatusUpdate(health);
+        }
+      } catch (e) {
+        // Handled in api client
+      }
+
+      // 2. Fetch Summary
+      try {
+        const sum = await getAqiSummary(selectedLocation);
+        if (isMounted) setSummary(sum);
+      } catch (e) {
+        // Handled in api client
+      }
+
+      // 3. Fetch Stations
+      try {
+        const stList = await getMonitoringStations();
+        if (isMounted) setStations(stList);
+      } catch (e) {
+        // Handled in api client
+      }
+
+      // 4. Fetch Forecast from backend model service
+      setIsLoadingForecast(true);
+      try {
+        const fc = await getForecast(selectedLocation, 24, true);
+        if (isMounted) {
+          setForecastMeta(fc);
+          const chartPoints = transformForecastToChartData(fc);
+          setForecastData(chartPoints);
+        }
+      } catch (e) {
+        // Handled in api client
+      } finally {
+        if (isMounted) setIsLoadingForecast(false);
+      }
+    }
+
+    loadBackendData();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedLocation, onHealthStatusUpdate]);
 
   return (
     <div className="space-y-6">
@@ -34,7 +108,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ selectedLocation }
       >
         {/* Interactive Map (8 cols on large screens) */}
         <div className="lg:col-span-8 h-[480px]">
-          <InteractiveMap />
+          <InteractiveMap stations={stations} />
         </div>
 
         {/* Route Planner & Hotspot Side Panel (4 cols on large screens) */}
@@ -49,7 +123,11 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({ selectedLocation }
         aria-label="Forecast and Historical Trends"
         className="grid grid-cols-1 lg:grid-cols-2 gap-6"
       >
-        <ForecastChart />
+        <ForecastChart
+          forecastData={forecastData}
+          forecastMeta={forecastMeta}
+          isLoading={isLoadingForecast}
+        />
         <HistoricalTrendChart />
       </section>
 

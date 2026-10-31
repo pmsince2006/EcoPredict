@@ -6,10 +6,16 @@ import { getAqiColor, getAqiBadgeClasses } from '../../utils/aqiUtils';
 import { DemoBadge } from '../../components/common/DemoBadge';
 import { Station } from '../../types/aqi';
 
-export const InteractiveMap: React.FC = () => {
+interface InteractiveMapProps {
+  stations?: Station[];
+}
+
+export const InteractiveMap: React.FC<InteractiveMapProps> = ({
+  stations = MOCK_STATIONS,
+}) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
-  const [selectedStation, setSelectedStation] = useState<Station | null>(MOCK_STATIONS[0]);
+  const [selectedStation, setSelectedStation] = useState<Station | null>(stations[0] || null);
 
   useEffect(() => {
     if (!mapContainerRef.current) return;
@@ -27,10 +33,10 @@ export const InteractiveMap: React.FC = () => {
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 18,
-      attribution: '&copy; OpenStreetMap contributors | EcoPredict Demo',
+      attribution: '&copy; OpenStreetMap contributors | EcoPredict',
     }).addTo(map);
 
-    MOCK_STATIONS.forEach((station) => {
+    stations.forEach((station) => {
       const color = getAqiColor(station.category);
 
       L.circle([station.lat, station.lng], {
@@ -69,7 +75,7 @@ export const InteractiveMap: React.FC = () => {
       map.remove();
       mapInstanceRef.current = null;
     };
-  }, []);
+  }, [stations]);
 
   return (
     <div className="bg-slate-900/90 border border-slate-800 rounded-xl overflow-hidden shadow-sm flex flex-col h-full">
@@ -79,7 +85,7 @@ export const InteractiveMap: React.FC = () => {
           <div className="flex items-center space-x-2">
             <MapIcon className="w-4 h-4 text-emerald-400" />
             <h2 className="text-base font-bold text-white">Interactive AQI Map</h2>
-            <DemoBadge label="Simulated Stations" />
+            <DemoBadge label="Monitoring Stations" />
           </div>
           <p className="text-xs text-slate-400 mt-0.5">
             Live pollution hotspots & monitoring stations across Delhi NCR
@@ -88,7 +94,7 @@ export const InteractiveMap: React.FC = () => {
 
         <div className="flex items-center space-x-2">
           <span className="text-xs text-slate-400 bg-slate-800/80 px-2.5 py-1 rounded border border-slate-700/60 font-mono">
-            {MOCK_STATIONS.length} Stations Active
+            {stations.length} Stations Active
           </span>
         </div>
       </div>

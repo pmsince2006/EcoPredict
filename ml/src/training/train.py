@@ -5,7 +5,7 @@ Orchestrates:
 2. Persistence baseline forecasting (y_{t+h} = y_t).
 3. Supervised regression model training (Random Forest Regressor).
 4. Out-of-sample evaluation on held-out test data.
-5. Serialization of model artifacts and metadata to ml/models/.
+5. Serialization of model artifacts and metadata with explicit data provenance.
 """
 
 import sys
@@ -195,6 +195,7 @@ class ModelTrainer:
         comparison_results: Dict[str, Any],
         model_filename: str = "baseline_random_forest.pkl",
         metadata_filename: str = "model_metadata.json",
+        dataset_source: str = "sample_delhi_cpcb_fixture.csv",
     ) -> Tuple[Path, Path]:
         """Serializes the trained model and its metadata to the models directory.
 
@@ -202,6 +203,7 @@ class ModelTrainer:
             comparison_results: Metrics and evaluation comparison dictionary.
             model_filename: Pickle filename for model weights.
             metadata_filename: JSON filename for metadata.
+            dataset_source: Name or path of source dataset used to fit the model.
 
         Returns:
             Tuple of (model_path, metadata_path).
@@ -217,7 +219,8 @@ class ModelTrainer:
         with open(model_path, "wb") as f:
             pickle.dump(self.model, f)
 
-        # Assemble metadata
+        # Explicit provenance labeling: distinguish synthetic test fixtures from verified real data
+        is_synthetic = "fixture" in str(dataset_source).lower() or "synthetic" in str(dataset_source).lower()
         metadata = {
             "model_type": "RandomForestRegressor",
             "model_file": str(model_filename),
@@ -227,6 +230,16 @@ class ModelTrainer:
             "feature_count": len(self.feature_names),
             "features": self.feature_names,
             "random_state": self.random_state,
+            "training_data_provenance": "synthetic_fixture" if is_synthetic else "verified_real_data",
+            "dataset_source": str(dataset_source),
+            "is_demo_model": is_synthetic,
+            "real_data_validated": not is_synthetic,
+            "data_status": "demo_preview" if is_synthetic else "real_data_forecast",
+            "warning": (
+                "DEMO MODEL ONLY: Trained on a synthetic test fixture. Not validated against real atmospheric data."
+                if is_synthetic
+                else None
+            ),
             "evaluation_metrics": comparison_results,
         }
 
@@ -275,8 +288,8 @@ class ModelTrainer:
         # Evaluate against persistence baseline
         results = self.evaluate_and_compare(X_test, y_test, test_period_info=period_info)
 
-        # Save artifacts
-        self.save_artifacts(results)
+        # Save artifacts with explicit provenance
+        self.save_artifacts(results, dataset_source=str(dataset_path_or_name))
 
         return results
 
